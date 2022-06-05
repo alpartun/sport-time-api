@@ -94,30 +94,162 @@ namespace sporttime4.Controllers
         {
 
             Event updatedEvent = _context.Events.FirstOrDefault(c=>c.Id == joinModel.eventId);
-            updatedEvent.count += 1;
-            User user = await _userManager.FindByIdAsync(joinModel.userId);
 
-            Participate participate = new Participate()
-            {
-                PEventId = updatedEvent.Id,
-                PUserId = joinModel.userId,
-            };
+            var check = _context.Participates.Where(c => c.PUserId == joinModel.userId);
 
-            try
+            var flag = false;
+
+            foreach (var item in check)
             {
-                var result = await _context.Participates.AddAsync(participate);
-                await _context.SaveChangesAsync();
-                return Ok(new {message = "Success"});
-            }
-            catch(Exception e)
-            {
-                return Ok(e);
+                if (item.PEventId == joinModel.eventId)
+                {
+                    flag = true;
+                    break;
+                }
             }
 
+            if (updatedEvent.Size == updatedEvent.count.ToString())
+            {
+                return Ok(new {message = "Event size is full."});
+            }
+            
+            if (flag)
+            {
+                return Ok(new {message = "You already joined the event."});
+            }
+            else
+            {
+
+                updatedEvent.count += 1;
+                User user = await _userManager.FindByIdAsync(joinModel.userId);
+
+                Participate participate = new Participate()
+                {
+                    PEventId = updatedEvent.Id,
+                    PUserId = joinModel.userId,
+                };
+
+                try
+                {
+                    var result = await _context.Participates.AddAsync(participate);
+                    await _context.SaveChangesAsync();
+                    return Ok(updatedEvent.count);
+                }
+                catch (Exception e)
+                {
+                    return Ok(e);
+                }
 
 
-            _context.SaveChanges();
-            return Ok(updatedEvent.count);
+            }
         }
+
+        [HttpPost]
+        [Route("DisjoinEvent")]
+
+        public async Task<IActionResult> DisjoinEvent(JoinModel model)
+        {
+            var updatedEvent =  _context.Events.FirstOrDefault(c => c.Id == model.eventId);
+            var check =  _context.Participates.Where(c => c.PUserId == model.userId && c.PEventId == model.eventId).FirstOrDefault();
+            if (check != null)
+            {
+                updatedEvent.count -= 1;
+                _context.Participates.Attach(check);
+                _context.Participates.Remove(check);
+                await _context.SaveChangesAsync();
+                return Ok(new {message="You succesfully disjoined the event."});
+            }
+            else
+            {
+                return Ok(new {message = "Error occurs."});
+
+            }
+
+        }
+        /*
+                [HttpPost]
+                [Route("ButtonStatus")]
+
+                public async Task<IActionResult> ButtonStatus(JoinModel model)
+                {
+                    var participateUser =  _context.Participates.Where(c => c.PUserId == model.userId);
+
+                    foreach (var item in participateUser)
+                    {
+                        if (item.PEventId == model.eventId)
+                        {
+                            return Ok(new {message = "False"});
+                        }
+                    }
+
+                    return Ok(new {message = "True"});
+
+                }*/
+        [HttpPost]
+        [Route("ButtonStatus")]
+
+        public async Task<IActionResult> ButtonStatus(JoinModel model)
+        {
+
+            var participateUser = _context.Participates.Where(c => c.PUserId == model.userId);
+            var list = new List<string>();
+            foreach (var item in participateUser)
+            {
+                list.Add(item.PEventId.ToString());
+            }
+
+            return Ok(list);
+
+
+        }
+
+        [HttpPost]
+        [Route("ProfileEvents")]
+
+        public async Task<IActionResult> ProfileEvents(JoinModel model)
+        {
+            var participates = _context.Participates.Where(c => c.PUserId == model.userId);
+            var showEvents = new List<Event>();
+            foreach (var item in participates)
+            {
+                var update = _context.Events.FirstOrDefault(c => c.Id == item.PEventId);
+                showEvents.Add(update);
+
+            }
+            return Ok(showEvents);
+        }
+
+        [HttpPost]
+        [Route("EditEvent")]
+        public async  Task<IActionResult> EditEvent(Event eventModel)
+        {
+            Event updateEvent = await _context.Events.FindAsync(eventModel.Id);
+
+            if (updateEvent != null)
+            {
+                updateEvent.Name = eventModel.Name;
+
+                updateEvent.Amount = eventModel.Amount;
+
+                updateEvent.City = eventModel.City;
+                updateEvent.Description = eventModel.Description;
+                updateEvent.StartDate = eventModel.EndDate;
+                updateEvent.Location = eventModel.Location;
+                updateEvent.EstimateTime = eventModel.EstimateTime;
+                updateEvent.Size = eventModel.Size;
+                updateEvent.SportType = eventModel.SportType;
+                updateEvent.PhotoUrl = eventModel.PhotoUrl;
+
+
+            }
+
+            var x =  _context.Events.Update(updateEvent);
+
+         
+                await _context.SaveChangesAsync();
+                return Ok(new {message="Event updated."});
+        }
+
+
     }
 }

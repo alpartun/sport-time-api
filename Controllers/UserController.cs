@@ -93,6 +93,12 @@ namespace sporttime4.Controllers
         public async Task<IActionResult> Edit(User userModel)
         {
             User userUpdate = await _userManager.FindByIdAsync(userModel.Id);
+
+            var events = _context.Events.Where(c => c.createdBy == userUpdate.UserName);
+            foreach (var item in events)
+            {
+                item.createdBy = userModel.UserName;
+            }
             var isPasswordTrue = await _userManager.CheckPasswordAsync(userUpdate, userModel.Password);
             if (isPasswordTrue && userUpdate!=null)
             {
@@ -110,12 +116,53 @@ namespace sporttime4.Controllers
             var x = await _userManager.UpdateAsync(userUpdate);
             if (x.Succeeded)
             {
-                _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return Ok(x);
             }
             return BadRequest(new{message = "Username or Password is incorrect or Username is already exists."});
         }
+
+        [HttpPost]
+        [Route("Delete")]
+        public async Task<IActionResult> Delete(JoinModel model)
+        {
+            User user = await _userManager.FindByIdAsync(model.userId);
+
+            var participates = _context.Participates.Where(c => c.PUserId == model.userId);
+            var events = _context.Events.Where(c => c.createdBy == user.UserName);
+
+            _context.Events.RemoveRange(events);
+            _context.Participates.RemoveRange(participates);
+            _context.Users.Remove(user);
+
+            _context.SaveChangesAsync();
+            return Ok(new {message = "User deleted."});
+        }
+
+        [HttpPost]
+        [Route("EventUsers")]
+
+        public async Task<IActionResult> EventUsers(JoinModel model)
+        {
+            var participates = _context.Participates.Where(c => c.PEventId == model.eventId);
+            var showUsers = new List<User>();
+            foreach (var item in participates)
+            {
+                var update =   _context.Users.FirstOrDefault(c => c.Id == item.PUserId);
+                showUsers.Add(update);
+
+            }
+            return Ok(showUsers);
+        }
+
+
+
+
+
+
+
+
     }
-    
+
 }
 

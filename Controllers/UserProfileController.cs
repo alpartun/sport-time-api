@@ -33,17 +33,17 @@ namespace sporttime4.Controllers
 
             return Ok(new
             {
-                id = user.Id,
-                fullName = user.FullName,
-                surname = user.Surname,
-                userName = user.UserName,
-                password = user.PasswordHash,
-                e_Mail = user.E_Mail,
-                age = user.Age,
-                gender = user.Gender,
-                position = user.Position,
-                height = user.Height,
-                weight = user.Weight
+                id = user2.Id,
+                fullName = user2.FullName,
+                surname = user2.Surname,
+                userName = user2.UserName,
+                password = user2.PasswordHash,
+                e_Mail = user2.E_Mail,
+                age = user2.Age,
+                gender = user2.Gender,
+                position = user2.Position,
+                height = user2.Height,
+                weight = user2.Weight
             });
 
 
