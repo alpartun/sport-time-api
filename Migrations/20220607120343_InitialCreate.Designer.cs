@@ -10,7 +10,7 @@ using sporttime4.Models;
 namespace sporttime4.Migrations
 {
     [DbContext(typeof(AuthenticationContext))]
-    [Migration("20220524180426_InitialCreate")]
+    [Migration("20220607120343_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,6 +234,9 @@ namespace sporttime4.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Contact")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")

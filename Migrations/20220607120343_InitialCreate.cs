@@ -39,7 +39,8 @@ namespace sporttime4.Migrations
                     PhotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Amount = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     createdBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    count = table.Column<int>(type: "int", nullable: false)
+                    count = table.Column<int>(type: "int", nullable: false),
+                    Contact = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
