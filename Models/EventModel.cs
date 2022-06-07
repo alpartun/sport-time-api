@@ -25,6 +25,7 @@ namespace sporttime4.Models
 
         public virtual ICollection<User> Users { get; set; }
         public int count { get; set; }
+        public string Contact { get; set; }
         public User User { get; set; }
         public string createdBy { get; set; }
 

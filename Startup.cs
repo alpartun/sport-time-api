@@ -40,10 +40,12 @@ namespace sporttime4
             //Inject appsettings
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
+            // Dependency Injection
             services.AddDbContext<AuthenticationContext>(
 
                 options => options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")))
             ;
+            //adding identity and ef implementation
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<AuthenticationContext>();
             services.Configure<IdentityOptions>(options =>
@@ -60,7 +62,7 @@ namespace sporttime4
             });
 
             services.AddCors();
-            // JWT AUTH
+            // JWT Authentication
             var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"].ToString());
 
             services.AddAuthentication(x =>

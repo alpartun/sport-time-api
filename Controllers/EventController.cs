@@ -45,6 +45,7 @@ namespace sporttime4.Controllers
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
                 createdBy = model.createdBy,
+                Contact = model.Contact
 
 
             };
@@ -79,14 +80,12 @@ namespace sporttime4.Controllers
             if (Id != 0)
             {
                 var result =  _context.Events.Where(s => s.Id == Id).ToList();
-                
-              
 
                 return Ok(result);
 
             }
 
-            return BadRequest(new {message="asdasd"});
+            return BadRequest(new {message="Error has occured."});
         }
         [HttpPost]
         [Route("JoinEvent")]
@@ -220,6 +219,17 @@ namespace sporttime4.Controllers
         }
 
         [HttpPost]
+        [Route("CreatedEvents")]
+        public async Task<IActionResult> CreatedEvents(JoinModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.userId);
+            var events = _context.Events.Where(c => c.createdBy == user.UserName);
+
+            return Ok(events);
+
+        }
+
+        [HttpPost]
         [Route("EditEvent")]
         public async  Task<IActionResult> EditEvent(Event eventModel)
         {
@@ -239,6 +249,7 @@ namespace sporttime4.Controllers
                 updateEvent.Size = eventModel.Size;
                 updateEvent.SportType = eventModel.SportType;
                 updateEvent.PhotoUrl = eventModel.PhotoUrl;
+                updateEvent.Contact = eventModel.Contact;
 
 
             }
@@ -248,6 +259,33 @@ namespace sporttime4.Controllers
          
                 await _context.SaveChangesAsync();
                 return Ok(new {message="Event updated."});
+        }
+
+        [HttpPost]
+        [Route("DeleteEvent")]
+        public async Task<IActionResult> DeleteEvent(JoinModel model)
+        {
+            var deleteEvent = _context.Events.FirstOrDefault(c => c.Id == model.eventId);
+            var participates = _context.Participates.Where(c => c.PEventId == model.eventId);
+
+            if (deleteEvent != null && participates != null)
+            {
+
+                _context.Participates.RemoveRange(participates);
+                _context.Events.Attach(deleteEvent);
+                _context.Events.Remove(deleteEvent);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Event deleted succesfully." });
+
+            }
+            else
+            {
+                return Ok(new { message = "error" });
+
+            }
+
+
         }
 
 

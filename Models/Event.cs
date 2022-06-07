@@ -28,6 +28,7 @@ namespace sporttime4.Models
         public string createdBy { get; set; }
 
         public int count { get; set; }
+        public string Contact { get; set; }
 
         public ICollection<Participate> participatedUserIds { get; set; }
 
